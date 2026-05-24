@@ -141,13 +141,16 @@ class BundleBuilderComponent extends Component {
       // before deciding to checkout. The discount code will be applied
       // at checkout via the cart drawer's checkout button.
       let cart = await fetch('/cart.js').then((r) => r.json());
+      // Fetch updated sections for proper drawer state sync - Satyam Tiwari
+      const res = await fetch("/?sections=cart-drawer,cart-icon-bubble");
+      const sections = await res.json();
 
       document.dispatchEvent(
         new CartAddEvent({}, this.dataset.sectionId, {
           source: 'bundle-builder',
           itemCount: cart.item_count,
           productId: '',
-          sections: [],
+          sections: sections, // Pass sections - Satyam Tiwari
         })
       );
 

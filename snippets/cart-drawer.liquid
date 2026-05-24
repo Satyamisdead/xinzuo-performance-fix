@@ -181,10 +181,13 @@
               
               const cartResponse = await fetch('/cart.js');
               const cart = await cartResponse.json();
+              // Fetch updated sections for proper drawer state sync - Satyam Tiwari
+              const sectionsRes = await fetch('/?sections=cart-drawer,cart-icon-bubble');
+              const sections = await sectionsRes.json();
               
               document.dispatchEvent(new CustomEvent('cart:update', {
                 bubbles: true,
-                detail: { data: { itemCount: cart.item_count, source: 'cart-recommended-products' } }
+                detail: { data: { itemCount: cart.item_count, source: 'cart-recommended-products', sections: sections } }
               }));
               
               if (typeof CartAddEvent !== 'undefined') {
@@ -192,7 +195,7 @@
                   source: 'cart-recommended-products',
                   itemCount: cart.item_count,
                   productId: parseInt(button.dataset.productId),
-                  sections: [],
+                  sections: sections, // Pass sections - Satyam Tiwari
                 }));
               }
               
