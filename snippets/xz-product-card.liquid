@@ -381,6 +381,14 @@
   <div class="xz-card-info-wrp">
     <div class="xz-card-img-wrap">
       {%- if card_image -%}
+        {%- comment -%} Optimize loading for above-the-fold cards - Satyam Tiwari {%- endcomment -%}
+        {%- liquid
+          assign loading_attr = loading | default: 'lazy'
+          assign fetch_priority = 'auto'
+          if loading_attr == 'eager'
+            assign fetch_priority = 'high'
+          endif
+        -%}
         <img
           src="{{ card_image | image_url: width: 600 }}"
           srcset="
@@ -391,7 +399,8 @@
           "
           sizes="(max-width: 749px) 45vw, (max-width: 1199px) 30vw, 22vw"
           alt="{{ product.title | escape }}"
-          loading="lazy"
+          loading="{{ loading_attr }}"
+          {% if fetch_priority == 'high' %}fetchpriority="high"{% endif %}
           width="600"
           height="600"
         >
@@ -506,16 +515,28 @@
           return fetch('/cart.js').then(function (r) { return r.json(); });
         })
         .then(function (cart) {
-          btn.classList.remove('is-loading');
-          btn.classList.add('is-added');
-          btn.textContent = 'Added ✓';
+          // Fetch fresh sections to keep drawer updated - Satyam Tiwari
+          return fetch('/?sections=cart-drawer,cart-icon-bubble')
+            .then(function (res) { return res.json(); })
+            .then(function (sections) {
+              btn.classList.remove('is-loading');
+              btn.classList.add('is-added');
+              btn.textContent = 'Added ✓';
 
-          document.dispatchEvent(
-            new CustomEvent('cart:update', {
-              bubbles: true,
-              detail: { data: { itemCount: cart.item_count, source: 'xz-card-atc' } },
-            })
-          );
+              document.dispatchEvent(
+                new CustomEvent('cart:update', {
+                  bubbles: true,
+                  detail: {
+                    data: {
+                      itemCount: cart.item_count,
+                      source: 'xz-card-atc',
+                      sections: sections // Pass sections - Satyam Tiwari
+                    }
+                  },
+                })
+              );
+            });
+        })
 
           setTimeout(function () {
             btn.classList.remove('is-added');

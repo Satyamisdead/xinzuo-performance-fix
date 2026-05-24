@@ -118,7 +118,8 @@
       block from git history and remove this {% render %} call.
     {%- endcomment -%}
     {% unless onboarding %}
-      {% render 'xz-product-card', product: product, variant_to_link: variant_to_link %}
+      {%- comment -%} Pass loading parameter to child product card - Satyam Tiwari {%- endcomment -%}
+      {% render 'xz-product-card', product: product, variant_to_link: variant_to_link, loading: loading %}
     {% endunless %}
   </product-card>
 {%- endcapture -%}
