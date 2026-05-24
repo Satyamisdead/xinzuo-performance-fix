@@ -60,7 +60,8 @@ class CartIcon extends Component {
     this.refs.cartBubble.classList.toggle('visually-hidden', itemCount === 0);
     this.refs.cartBubble.classList.toggle('cart-bubble--animating', itemCount > 0 && animate);
 
-    this.currentCartCount = comingFromProductForm ? this.currentCartCount + itemCount : itemCount;
+    // Update count directly to prevent double counting of total items - Satyam Tiwari
+    this.currentCartCount = itemCount;
 
     this.classList.toggle('header-actions__cart-icon--has-cart', itemCount > 0);
 
