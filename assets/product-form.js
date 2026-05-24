@@ -172,7 +172,8 @@ class ProductFormComponent extends Component {
     const SHOW_FEE2 = window.engravingSecondSelected && window.engravingText2;
     const FEE_ID = 43781283217459;
     const FEE_ID2 = 43781283250227;
-    const knife_num = window.knife_num;
+    // Safe fallback for engraving quantity calculation - Satyam Tiwari
+    const knife_num = Number(window.knife_num) || 1;
 
     const addMainProduct = () => {
       return fetch("/cart/add.js", {
@@ -226,13 +227,16 @@ class ProductFormComponent extends Component {
       .then(addFeeProduct)
       .then(async () => {
         const cart = await fetch("/cart.js").then(r => r.json());
+        // Fetch updated sections for proper drawer state sync - Satyam Tiwari
+        const res = await fetch("/?sections=cart-drawer,cart-icon-bubble");
+        const sections = await res.json();
 
         document.dispatchEvent(
           new CartAddEvent({}, variantId, {
             source: "product-form-component",
             itemCount: cart.item_count,
             productId: variantId,
-            sections: [],
+            sections: sections, // Pass sections - Satyam Tiwari
           })
         );
       })
